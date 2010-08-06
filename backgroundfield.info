@@ -1,0 +1,8 @@
+; $Id$
+name = BackgroundField
+description = Defines a background image field type.
+dependencies[] = content
+dependencies[] = filefield
+dependencies[] = imagefield
+package = CCK
+core = 6.x
