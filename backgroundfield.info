@@ -1,4 +1,3 @@
-; $Id$
 name = BackgroundField
 description = Defines a background image field type.
 dependencies[] = content

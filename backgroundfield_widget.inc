@@ -1,5 +1,4 @@
 <?php
-// $Id$
 
 function backgroundfield_widget_settings_form($widget) {
   $form = imagefield_widget_settings_form($widget);

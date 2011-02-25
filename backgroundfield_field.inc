@@ -1,5 +1,4 @@
 <?php
-// $Id$
 
 /*
  * Create the additional/custom fields
