@@ -13,7 +13,8 @@ function backgroundfield_widget_settings_save($widget) {
     'css_selector',
     'repeat',
     'h_position',
-    'v_position'
+    'v_position',
+    'attachment',
   );
   return array_merge($save1, $save2);
 }

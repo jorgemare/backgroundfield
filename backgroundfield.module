@@ -183,18 +183,27 @@ function backgroundfield_field_formatter_info() {
 /*
  * Add background css code to site head
  */
-function theme_backgroundfield_formatter_default($element = NULLL) {
+function theme_backgroundfield_formatter_default($element = NULL) {
   global $base_url;
+  static $previous_selectors = array();
   $fields = content_fields();
   $cssInfo = $fields[$element['#field_name']];
 
-  $css = $cssInfo['css_selector'] . ' {
-    background-image: url("' . $base_url . '/' . $element['#item']['filepath'] . '");
-    background-repeat: ' . $cssInfo['repeat'] . ';
-    background-position: ' . $cssInfo['h_position'] . ' ' . $cssInfo['v_position'] . ';
-    }';
+  if (in_array($cssInfo['css_selector'], $previous_selectors)) {
+    return;
+  }
 
-  drupal_set_html_head('<style type="text/css" rel="stylesheet" media="all">' . $css . '</style>');
+  if (!empty($element['#item']['filepath'])) {
+    $css = $cssInfo['css_selector'] . ' {
+      background-image: url("' . $base_url . '/' . $element['#item']['filepath'] . '");
+      background-repeat: ' . $cssInfo['repeat'] . ';
+      background-position: ' . $cssInfo['h_position'] . ' ' . $cssInfo['v_position'] . ';
+      background-attachment: ' . $cssInfo['attachment'] . ';
+      }';
+  
+    drupal_set_html_head('<style type="text/css" rel="stylesheet" media="all">' . $css . '</style>');
+    $previous_selectors[] = $cssInfo['css_selector'];
+  } // if has image file
 }
 /* 
  * END Formatter Info

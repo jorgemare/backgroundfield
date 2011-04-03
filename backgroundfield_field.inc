@@ -8,7 +8,8 @@ function backgroundfield_field_settings_form($field) {
     '#type' => 'textfield',
     '#title' => t('CSS Selector'),
     '#default_value' => ($field['css_selector'])? $field['css_selector'] : 'body',
-    '#description' => t('Enter a CSS selector to select the page element(s) to apply the background image. For example: .content')
+    '#description' => t('Enter a CSS selector to select the page element(s) to apply the background image. For example: .content'),
+    '#required' => TRUE,
   );
   $form['repeat'] = array(
     '#type' => 'radios',
@@ -19,7 +20,8 @@ function backgroundfield_field_settings_form($field) {
       'repeat-x' => t('Repeat Horizontally'),
       'repeat-y' => t('Repeat Vertically'),
       'no-repeat' => t('No Repeat')
-    )
+    ),
+    '#required' => TRUE,
   );
   $form['h_position'] = array(
     '#type' => 'radios',
@@ -29,7 +31,8 @@ function backgroundfield_field_settings_form($field) {
       'left' => t('Left'),
       'center' => t('Center'),
       'right' => t('Right')
-    )
+    ),
+    '#required' => TRUE,
   );
   $form['v_position'] = array(
     '#type' => 'radios',
@@ -39,7 +42,18 @@ function backgroundfield_field_settings_form($field) {
       'top' => t('Top'),
       'center' => t('Center'),
       'bottom' => t('Bottom')
-    )
+    ),
+    '#required' => TRUE,
+  );
+  $form['attachment'] = array(
+    '#type' => 'radios',
+    '#title' => t('Attachment'),
+    '#default_value' => ($field['attachment'])? $field['attachment'] : 'scroll',
+    '#options' => array(
+      'scroll' => t('Scroll'),
+      'fixed' => t('Fixed'),
+    ),
+    '#required' => TRUE,
   );
   return $form;
 }
@@ -53,8 +67,8 @@ function backgroundfield_field_settings_save($field) {
     'css_selector',
     'repeat',
     'h_position',
-    'v_position'
+    'v_position',
+    'attachment',
   );
   return array_merge($save1, $save2);
 }
-
