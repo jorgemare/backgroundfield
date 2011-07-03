@@ -1,7 +1,5 @@
 name = BackgroundField
 description = Defines a background image field type.
-dependencies[] = content
-dependencies[] = filefield
-dependencies[] = imagefield
-package = CCK
-core = 6.x
+dependencies[] = image
+package = BackgroundField
+core = 7.x

@@ -1,210 +1,139 @@
 <?php
 
 /**
- * backgroundfield module
- * 2010-06-03 Jason Yee (jyee) - http://drupal.org/user/712186
- *
- * This is an extension of the CCK imagefield module
- * CCK modules generally have 3 primary sections that functions relate to:
- *  - Field 
- *  - Widget
- *  - Formatter
- * I've marked the sections below for easier reading
- */
-
-
-/*
- * Implementation of hook_init().
- * http://api.drupal.org/api/function/hook_init
- */
-function backgroundfield_init() {
-  module_load_include('inc', 'filefield', 'filefield_widget');
-  module_load_include('inc', 'imagefield', 'imagefield_field');
-  module_load_include('inc', 'imagefield', 'imagefield_widget');
-  module_load_include('inc', 'backgroundfield', 'backgroundfield_field');
-  module_load_include('inc', 'backgroundfield', 'backgroundfield_widget');
-}
-
-
-/* 
- * BEGIN Field Info functions
- * Implementation of hook_field_info().
- * http://drupal.org/node/417654
+ * Implementation of hook_field_info()
  */
 function backgroundfield_field_info() {
   return array(
     'backgroundfield' => array(
-      'label' => t('Background Field'),
-      'description' => t('Allows users to apply a background image to a field defined css selector'),
-    )
+      'label' => t('BackgroundField'),
+      'description' => t('Defines a background image field with associated css settings'),
+      'settings' => array(
+        'uri_scheme' => variable_get('file_default_scheme', 'public'),
+        'default_image' => 0,
+      ),
+      'instance_settings' => array(
+        'file_extensions' => 'png gif jpg jpeg',
+        'file_directory' => '',
+        'max_filesize' => '',
+        'max_resolution' => '',
+        'min_resolution' => '',
+        'css_selector' => '',
+        'css_repeat' => '',
+        'css_h_position' => '',
+        'css_v_position' => '',
+        'css_attachment' => '',
+      ),
+      'default_widget' => 'backgroundfield_widget',
+      'default_formatter' => 'backgroundfield_formatter',
+    ),
   );
+} // backgroundfield_field_info()
+
+
+/**
+ * hook_field_settings_form()
+ */
+function backgroundfield_field_settings_form($field, $instance, $has_data) {
+  $form = image_field_settings_form($field, $instance, $has_data);
+  $settings = $field['settings'];
+  $form['css_selector'] = array(
+    '#type' => 'textfield',
+    '#title' => t('CSS Selector'),
+    '#default_value' => (isset($settings['css_selector']))? $settings['css_selector'] : 'body',
+    '#description' => t('Enter a CSS selector to select the page element(s) to apply the background image. For example: .content'),
+    '#required' => TRUE,
+  );  
+  $form['repeat'] = array(
+    '#type' => 'radios',
+    '#title' => t('Repeat'),
+    '#default_value' => (isset($settings['repeat']))? $settings['repeat'] : 'repeat',
+    '#options' => array(
+      'repeat' => t('Repeat'),
+      'repeat-x' => t('Repeat Horizontally'),
+      'repeat-y' => t('Repeat Vertically'),
+      'no-repeat' => t('No Repeat')
+    ),  
+    '#required' => TRUE,
+  );  
+  $form['h_position'] = array(
+    '#type' => 'radios',
+    '#title' => t('Horizontal Position'),
+    '#default_value' => (isset($settings['h_position']))? $settings['h_position'] : 'left',
+    '#options' => array(
+      'left' => t('Left'),
+      'center' => t('Center'),
+      'right' => t('Right')
+    ),  
+    '#required' => TRUE,
+  );  
+  $form['v_position'] = array(
+    '#type' => 'radios',
+    '#title' => t('Vertical Position'),
+    '#default_value' => (isset($settings['v_position']))? $settings['v_position'] : 'top',
+    '#options' => array(
+      'top' => t('Top'),
+      'center' => t('Center'),
+      'bottom' => t('Bottom')
+    ),  
+    '#required' => TRUE,
+  ); 
+  $form['attachment'] = array(
+    '#type' => 'radios',
+    '#title' => t('Attachment'),
+    '#default_value' => (isset($settings['attachment']))? $settings['attachment'] : 'scroll',
+    '#options' => array(
+      'scroll' => t('Scroll'),
+      'fixed' => t('Fixed'),
+    ),
+    '#required' => TRUE,
+  );
+  return $form;
 }
 
-/*
- * Implementation of hook_field_settings().
- * http://drupal.org/node/354365
- */
-function backgroundfield_field_settings($op, $field) {
-  switch($op) {
-    case 'form':
-      return backgroundfield_field_settings_form($field);
-    case 'save':
-      return backgroundfield_field_settings_save($field);
-    default:
-      return filefield_field_settings($op, $field);
-  }
-}
 
-/*
- * Implementation of hook_field().
- * http://drupal.org/node/342996
+/**
+ * Implements hook_field_widget_info()
  */
-function backgroundfield_field($op, $node, $field, &$items, $teaser, $page) {
-  return filefield_field($op, $node, $field, $items, $teaser, $page);
-}
-
-/*
- * Implementation of hook_content_is_empty().
- */
-function backgroundfield_content_is_empty($item, $field) {
-  return filefield_content_is_empty($item, $field);
-}
-
-/*
- * Implementation of hook_default_value().
- * http://drupal.org/node/371502
- */
-function backgroundfield_default_value(&$form, &$form_state, $field, $delta) {
-  return filefield_default_value($form, $form_state, $field, $delta);
-}
-/*
- * END Field Info Functions
- */
-
-
-/* 
- * BEGIN Widget Info
- * Implementation of hook_widget_info().
- * http://drupal.org/node/417884
- */
-function backgroundfield_widget_info() {
+function backgroundfield_field_widget_info() {
   return array(
-    'theme_background_widget' => array(
+    'backgroundfield' => array(
       'label' => t('Background Field'),
       'field types' => array('backgroundfield'),
-      'multiple values' => CONTENT_HANDLE_CORE,
-      'callbacks' => array('default value' => CONTENT_CALLBACK_DEFAULT),
       'description' => t('Allows users to apply a background image to a field defined css selector'),
     ),
   );
 }
 
-/* 
- * Implementation of hook_widget_settings().
- * http://drupal.org/node/354369
+/**
+ * Implements hook_field_widget_settings_form()
  */
-function backgroundfield_widget_settings($op, $widget) {
-  switch ($op) {
-    case 'form':
-      return backgroundfield_widget_settings_form($widget);
-    case 'validate':
-      return imagefield_widget_settings_validate($widget);
-    case 'save':
-      return backgroundfield_widget_settings_save($widget);
-  }
+function backgroundfield_field_widget_form(&$form, &$form_state, $field, $instance, $langcode, $items, $delta, $element) {
+  return image_field_widget_form($form, $form_state, $field, $instance, $langcode, $items, $delta, $element);
 }
 
 /*
- * Implementation of hook_elements().
- * http://api.drupal.org/api/function/hook_elements
+ * Implementation of hook_field_is_empty().
  */
-function backgroundfield_elements() {
-  return array(
-    'backgroundfield_widget' => array(
-      '#input' => TRUE,
-      '#process' => array('imagefield_widget_process'),
-      '#element_validate' => array('imagefield_widget_validate')
-    )
-  );
+function backgroundfield_field_is_empty($item, $field) {
+  return image_field_is_empty($item, $field);
 }
 
-/*
- * Implementation of hook_widget().
- * http://drupal.org/node/344142
- */
-function backgroundfield_widget(&$form, &$form_state, $field, $items, $delta = 0) {
-  if(!is_array($items[$delta]['data'])) {
-    $items[$delta]['data'] = unserialize($items[ $delta ]['data']);
-  }
-
-  $element = filefield_widget($form, $form_state, $field, $items, $delta);
-  $element['#type'] = 'imagefield_widget';
-  return $element;
-}
-
-/* 
- * Implementation of hook_file_references (filefield module).
- * filefield expects you to return a count of the number of references to a file.
- */
-function backgroundfield_file_references($file) {
-  return array('backgroundfield' => 1);
-}
-/*
- * END Widget Info
- */
-
-
-/*
- * BEGIN Formatter Info
- * Implementation of hook_theme().
- * http://api.drupal.org/api/function/hook_theme
- */
-function backgroundfield_theme() {
-  return array(
-    'backgroundfield_formatter_default' => array(
-       'arguments' => array('element' => NULL)
-    )
-  );
-}
-
-/*
- * Implementation of hook_field_formatter_info().
+/**
+ * Implementation of hook_field_formatter_info()
  */
 function backgroundfield_field_formatter_info() {
   return array(
     'default' => array(
       'label' => t('Background Field'),
       'field types' => array('backgroundfield'),
-      'multiple values' => CONTENT_HANDLE_CORE
     ),
   );
 }
 
-/*
- * Add background css code to site head
+/**
+ * Immplementation of hook_field_formatter_view()
  */
-function theme_backgroundfield_formatter_default($element = NULL) {
-  global $base_url;
-  static $previous_selectors = array();
-  $fields = content_fields();
-  $cssInfo = $fields[$element['#field_name']];
-
-  if (in_array($cssInfo['css_selector'], $previous_selectors)) {
-    return;
-  }
-
-  if (!empty($element['#item']['filepath'])) {
-    $css = $cssInfo['css_selector'] . ' {
-      background-image: url("' . $base_url . '/' . $element['#item']['filepath'] . '");
-      background-repeat: ' . $cssInfo['repeat'] . ';
-      background-position: ' . $cssInfo['h_position'] . ' ' . $cssInfo['v_position'] . ';
-      background-attachment: ' . $cssInfo['attachment'] . ';
-      }';
-  
-    drupal_set_html_head('<style type="text/css" rel="stylesheet" media="all">' . $css . '</style>');
-    $previous_selectors[] = $cssInfo['css_selector'];
-  } // if has image file
+function backgroundfield_field_formatter_view($entity_type, $entity, $field, $instance, $langcode, $items, $display) {
+  dpm($display);
 }
-/* 
- * END Formatter Info
- */
