@@ -36,7 +36,25 @@ function backgroundfield_field_info() {
  */
 function backgroundfield_field_settings_form($field, $instance, $has_data) {
   $form = image_field_settings_form($field, $instance, $has_data);
+  return $form;
+}
+
+/**
+ * hook_field_instance_settings_form()
+ */
+function backgroundfield_field_instance_settings_form($field, $instance) {
   $settings = $field['settings'];
+  // image field expects these
+  $instance['settings']['alt_field'] = '';
+  $instance['settings']['title_field'] = '';
+
+  // Use the image field instance settings form as a basis.
+  $form = image_field_instance_settings_form($field, $instance);
+
+  // we don't need these, but unsetting them seems to be problematic
+  $form['alt_field']['#access'] = FALSE;
+  $form['title_field']['#access'] = FALSE;;
+
   $form['css_selector'] = array(
     '#type' => 'textfield',
     '#title' => t('CSS Selector'),
@@ -91,16 +109,68 @@ function backgroundfield_field_settings_form($field, $instance, $has_data) {
   return $form;
 }
 
+/**
+ * Implements hook_field_load().
+ */
+function backgroundfield_field_load($entity_type, $entities, $field, $instances, $langcode, &$items, $age) {
+  image_field_load($entity_type, $entities, $field, $instances, $langcode, $items, $age);
+}
+
+/**
+ * Implements hook_field_presave().
+ */
+function backgroundfield_field_presave($entity_type, $entity, $field, $instance, $langcode, &$items) {
+  image_field_presave($entity_type, $entity, $field, $instance, $langcode, $items);
+}
+
+/**
+ * Implements hook_field_insert().
+ */
+function backgroundfield_field_insert($entity_type, $entity, $field, $instance, $langcode, &$items) {
+  image_field_insert($entity_type, $entity, $field, $instance, $langcode, $items);
+}
+
+/**
+ * Implements hook_field_update().
+ */
+function backgroundfield_field_update($entity_type, $entity, $field, $instance, $langcode, &$items) {
+  image_field_update($entity_type, $entity, $field, $instance, $langcode, $items);
+}
+
+/**
+ * Implements hook_field_delete().
+ */
+function backgroundfield_field_delete($entity_type, $entity, $field, $instance, $langcode, &$items) {
+  image_field_delete($entity_type, $entity, $field, $instance, $langcode, $items);
+}
+
+/**
+ * Implements hook_field_delete_revision().
+ */
+function backgroundfield_field_delete_revision($entity_type, $entity, $field, $instance, $langcode, &$items) {
+  image_field_delete_revision($entity_type, $entity, $field, $instance, $langcode, $items);
+}
+
+/**
+ * Implements hook_field_is_empty().
+ */
+function backgroundfield_field_is_empty($item, $field) {
+  return image_field_is_empty($item, $field);
+}
 
 /**
  * Implements hook_field_widget_info()
  */
 function backgroundfield_field_widget_info() {
   return array(
-    'backgroundfield' => array(
+    'backgroundfield_widget' => array(
       'label' => t('Background Field'),
       'field types' => array('backgroundfield'),
       'description' => t('Allows users to apply a background image to a field defined css selector'),
+      'behaviors' => array(
+        'multiple values' => FIELD_BEHAVIOR_CUSTOM,
+        'default value' => FIELD_BEHAVIOR_NONE,
+      ),
     ),
   );
 }
@@ -108,15 +178,28 @@ function backgroundfield_field_widget_info() {
 /**
  * Implements hook_field_widget_settings_form()
  */
-function backgroundfield_field_widget_form(&$form, &$form_state, $field, $instance, $langcode, $items, $delta, $element) {
-  return image_field_widget_form($form, $form_state, $field, $instance, $langcode, $items, $delta, $element);
+function backgroundfield_field_widget_settings_form($field, $instance) {
+  // set fields expected by file and image fields
+  $instance['widget']['settings']['progress_indicator'] = 0; // expected by file field
+  $instance['widget']['settings']['preview_image_style'] = 0; // expected by image field
+
+  $form = image_field_widget_settings_form($field, $instance);
+
+  // remove the preview image style
+  unset($form['preview_image_style']);
+  
+  return $form;
 }
 
-/*
- * Implementation of hook_field_is_empty().
+/**
+ * Implements hook_field_widget_form()
  */
-function backgroundfield_field_is_empty($item, $field) {
-  return image_field_is_empty($item, $field);
+function backgroundfield_field_widget_form(&$form, &$form_state, $field, $instance, $langcode, $items, $delta, $element) {
+  // expected by image field
+  $instance['widget']['settings']['preview_image_style'] = 0;
+
+  $elements = image_field_widget_form($form, $form_state, $field, $instance, $langcode, $items, $delta, $element);
+  return $elements;
 }
 
 /**
@@ -124,7 +207,7 @@ function backgroundfield_field_is_empty($item, $field) {
  */
 function backgroundfield_field_formatter_info() {
   return array(
-    'default' => array(
+    'backgroundfield_formatter' => array(
       'label' => t('Background Field'),
       'field types' => array('backgroundfield'),
     ),
