@@ -62,10 +62,10 @@ function backgroundfield_field_instance_settings_form($field, $instance) {
     '#description' => t('Enter a CSS selector to select the page element(s) to apply the background image. For example: .content'),
     '#required' => TRUE,
   );  
-  $form['repeat'] = array(
+  $form['css_repeat'] = array(
     '#type' => 'radios',
     '#title' => t('Repeat'),
-    '#default_value' => (isset($settings['repeat']))? $settings['repeat'] : 'repeat',
+    '#default_value' => (isset($settings['css_repeat']))? $settings['css_repeat'] : 'repeat',
     '#options' => array(
       'repeat' => t('Repeat'),
       'repeat-x' => t('Repeat Horizontally'),
@@ -74,10 +74,10 @@ function backgroundfield_field_instance_settings_form($field, $instance) {
     ),  
     '#required' => TRUE,
   );  
-  $form['h_position'] = array(
+  $form['css_h_position'] = array(
     '#type' => 'radios',
     '#title' => t('Horizontal Position'),
-    '#default_value' => (isset($settings['h_position']))? $settings['h_position'] : 'left',
+    '#default_value' => (isset($settings['css_h_position']))? $settings['css_h_position'] : 'left',
     '#options' => array(
       'left' => t('Left'),
       'center' => t('Center'),
@@ -85,10 +85,10 @@ function backgroundfield_field_instance_settings_form($field, $instance) {
     ),  
     '#required' => TRUE,
   );  
-  $form['v_position'] = array(
+  $form['css_v_position'] = array(
     '#type' => 'radios',
     '#title' => t('Vertical Position'),
-    '#default_value' => (isset($settings['v_position']))? $settings['v_position'] : 'top',
+    '#default_value' => (isset($settings['css_v_position']))? $settings['css_v_position'] : 'top',
     '#options' => array(
       'top' => t('Top'),
       'center' => t('Center'),
@@ -96,10 +96,10 @@ function backgroundfield_field_instance_settings_form($field, $instance) {
     ),  
     '#required' => TRUE,
   ); 
-  $form['attachment'] = array(
+  $form['css_attachment'] = array(
     '#type' => 'radios',
     '#title' => t('Attachment'),
-    '#default_value' => (isset($settings['attachment']))? $settings['attachment'] : 'scroll',
+    '#default_value' => (isset($settings['css_attachment']))? $settings['css_attachment'] : 'scroll',
     '#options' => array(
       'scroll' => t('Scroll'),
       'fixed' => t('Fixed'),
@@ -218,5 +218,37 @@ function backgroundfield_field_formatter_info() {
  * Immplementation of hook_field_formatter_view()
  */
 function backgroundfield_field_formatter_view($entity_type, $entity, $field, $instance, $langcode, $items, $display) {
-  dpm($display);
+
+  static $previous_selectors = array();
+  if (in_array($instance['settings']['css_selector'], $previous_selectors)) return;
+
+  // if this field instance has an image
+  if (isset($items[0])) {
+    $file = file_load($items[0]);
+  }
+  // else if there's a default image
+  else if (is_numeric($field['settings']['default_image'])) {
+    $file = file_load($field['settings']['default_image']);
+  }
+  // no images, end here.
+  else {
+    return;
+  }
+
+  // check if there's a file
+  if (!$file) return;
+
+  $css = $instance['settings']['css_selector'] . ' {
+    background-image: url("' . file_create_url($file->uri) . '");
+    background-repeat: ' . $instance['settings']['css_repeat'] . ';
+    background-position: ' . $instance['settings']['css_h_position'] . ' ' . $instance['settings']['css_v_position'] . ';
+    background-attachment: ' . $instance['settings']['css_attachment'] . ';
+    }';
+  $options = array(
+    'type' => 'inline',
+    'group' => CSS_DEFAULT,
+  );
+  drupal_add_css($css, $options);
+
+
 }
