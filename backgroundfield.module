@@ -43,7 +43,7 @@ function backgroundfield_field_settings_form($field, $instance, $has_data) {
  * hook_field_instance_settings_form()
  */
 function backgroundfield_field_instance_settings_form($field, $instance) {
-  $settings = $field['settings'];
+  $settings = $instance['settings'];
   // image field expects these
   $instance['settings']['alt_field'] = '';
   $instance['settings']['title_field'] = '';
@@ -164,7 +164,7 @@ function backgroundfield_field_is_empty($item, $field) {
 function backgroundfield_field_widget_info() {
   return array(
     'backgroundfield_widget' => array(
-      'label' => t('Background Field'),
+      'label' => t('BackgroundField'),
       'field types' => array('backgroundfield'),
       'description' => t('Allows users to apply a background image to a field defined css selector'),
       'behaviors' => array(
@@ -185,8 +185,9 @@ function backgroundfield_field_widget_settings_form($field, $instance) {
 
   $form = image_field_widget_settings_form($field, $instance);
 
-  // remove the preview image style
-  unset($form['preview_image_style']);
+  // always show thumbnail preview, hide form element
+  $form['preview_image_style']['#default_value'] = 'thumbnail';
+  $form['preview_image_style']['#access'] = FALSE;
   
   return $form;
 }
@@ -208,7 +209,7 @@ function backgroundfield_field_widget_form(&$form, &$form_state, $field, $instan
 function backgroundfield_field_formatter_info() {
   return array(
     'backgroundfield_formatter' => array(
-      'label' => t('Background Field'),
+      'label' => t('BackgroundField'),
       'field types' => array('backgroundfield'),
     ),
   );
@@ -224,6 +225,8 @@ function backgroundfield_field_formatter_view($entity_type, $entity, $field, $in
 
   // if this field instance has an image
   if (isset($items[0])) {
+    // if $items[0] is a full file array, convert to a fileid
+    if (isset($items[0]['fid'])) $items[0] = $items[0]['fid'];
     $file = file_load($items[0]);
   }
   // else if there's a default image
