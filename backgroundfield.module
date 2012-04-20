@@ -233,8 +233,13 @@ function backgroundfield_field_formatter_view($entity_type, $entity, $field, $in
   static $previous_selectors = array();
   if (in_array($instance['settings']['css_selector'], $previous_selectors)) return;
 
+  // if this field instance has more than one image, randomly select one
+  if (count($items) > 1) {
+    $num = mt_rand(0, count($items) - 1);
+    $file = file_load($items[$num]['fid']);
+  }
   // if this field instance has an image
-  if (isset($items[0])) {
+  else if (isset($items[0])) {
     $file = file_load($items[0]['fid']);
   }
   // else if there's a default image
