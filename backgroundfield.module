@@ -232,7 +232,7 @@ function backgroundfield_field_formatter_view($entity_type, $entity, $field, $in
 
   // if this field instance has an image
   if (isset($items[0])) {
-    $file = file_load($items[0]);
+    $file = file_load($items[0]['fid']);
   }
   // else if there's a default image
   else if (is_numeric($field['settings']['default_image'])) {
