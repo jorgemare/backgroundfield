@@ -160,6 +160,16 @@ function backgroundfield_field_delete_revision($entity_type, $entity, $field, $i
 }
 
 /**
+ * Implements hook_field_update_field().
+ */
+function backgroundfield_field_update_field($field, $prior_field, $has_data) {
+  // hack so we can use the default image function
+  $field['type'] = 'image';
+  image_field_update_field($field, $prior_field, $has_data);
+}
+
+
+/**
  * Implements hook_field_is_empty().
  */
 function backgroundfield_field_is_empty($item, $field) {
