@@ -44,7 +44,6 @@ function backgroundfield_field_settings_form($field, $instance, $has_data) {
  * hook_field_instance_settings_form()
  */
 function backgroundfield_field_instance_settings_form($field, $instance) {
-  $settings = $field['settings'];
   // image field expects these
   $instance['settings']['alt_field'] = '';
   $instance['settings']['title_field'] = '';
@@ -59,14 +58,14 @@ function backgroundfield_field_instance_settings_form($field, $instance) {
   $form['css_selector'] = array(
     '#type' => 'textfield',
     '#title' => t('CSS Selector'),
-    '#default_value' => (isset($settings['css_selector']))? $settings['css_selector'] : 'body',
+    '#default_value' => (isset($instance['settings']['css_selector']))? $instance['settings']['css_selector'] : 'body',
     '#description' => t('Enter a CSS selector to select the page element(s) to apply the background image. For example: .content'),
     '#required' => TRUE,
   );  
   $form['css_repeat'] = array(
     '#type' => 'radios',
     '#title' => t('Repeat'),
-    '#default_value' => (isset($settings['css_repeat']))? $settings['css_repeat'] : 'repeat',
+    '#default_value' => (isset($instance['settings']['css_repeat']))? $instance['settings']['css_repeat'] : 'repeat',
     '#options' => array(
       'repeat' => t('Repeat'),
       'repeat-x' => t('Repeat Horizontally'),
@@ -78,7 +77,7 @@ function backgroundfield_field_instance_settings_form($field, $instance) {
   $form['css_h_position'] = array(
     '#type' => 'radios',
     '#title' => t('Horizontal Position'),
-    '#default_value' => (isset($settings['css_h_position']))? $settings['css_h_position'] : 'left',
+    '#default_value' => (isset($instance['settings']['css_h_position']))? $instance['settings']['css_h_position'] : 'left',
     '#options' => array(
       'left' => t('Left'),
       'center' => t('Center'),
@@ -89,7 +88,7 @@ function backgroundfield_field_instance_settings_form($field, $instance) {
   $form['css_v_position'] = array(
     '#type' => 'radios',
     '#title' => t('Vertical Position'),
-    '#default_value' => (isset($settings['css_v_position']))? $settings['css_v_position'] : 'top',
+    '#default_value' => (isset($instance['settings']['css_v_position']))? $instance['settings']['css_v_position'] : 'top',
     '#options' => array(
       'top' => t('Top'),
       'center' => t('Center'),
@@ -100,7 +99,7 @@ function backgroundfield_field_instance_settings_form($field, $instance) {
   $form['css_attachment'] = array(
     '#type' => 'radios',
     '#title' => t('Attachment'),
-    '#default_value' => (isset($settings['css_attachment']))? $settings['css_attachment'] : 'scroll',
+    '#default_value' => (isset($instance['settings']['css_attachment']))? $instance['settings']['css_attachment'] : 'scroll',
     '#options' => array(
       'scroll' => t('Scroll'),
       'fixed' => t('Fixed'),
@@ -111,7 +110,7 @@ function backgroundfield_field_instance_settings_form($field, $instance) {
     '#type' => 'checkbox',
     '#title' => t('!important'),
     '#description' => t('Check this in order to set the <a href="@important_url">!important declaration</a>.', array('@important_url' => url('http://www.w3.org/TR/CSS21/cascade.htmlr', array('fragment' => 'important-rules')))),
-    '#default_value' => (isset($settings['css_important']))? $settings['css_important'] : 0,
+    '#default_value' => (isset($instance['settings']['css_important']))? $instance['settings']['css_important'] : 0,
   );
 
   return $form;
