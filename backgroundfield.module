@@ -197,16 +197,7 @@ function backgroundfield_field_widget_info() {
  * Implements hook_field_widget_settings_form()
  */
 function backgroundfield_field_widget_settings_form($field, $instance) {
-  // set fields expected by file and image fields
-  $instance['widget']['settings']['progress_indicator'] = 0; // expected by file field
-  $instance['widget']['settings']['preview_image_style'] = 0; // expected by image field
-
-  $form = image_field_widget_settings_form($field, $instance);
-
-  // remove the preview image style
-  unset($form['preview_image_style']);
-  
-  return $form;
+  return image_field_widget_settings_form($field, $instance);
 }
 
 /**
