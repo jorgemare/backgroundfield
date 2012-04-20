@@ -23,6 +23,7 @@ function backgroundfield_field_info() {
         'css_h_position' => '',
         'css_v_position' => '',
         'css_attachment' => '',
+        'css_important' => '',
       ),
       'default_widget' => 'backgroundfield_widget',
       'default_formatter' => 'backgroundfield_formatter',
@@ -106,6 +107,13 @@ function backgroundfield_field_instance_settings_form($field, $instance) {
     ),
     '#required' => TRUE,
   );
+  $form['css_important'] = array(
+    '#type' => 'checkbox',
+    '#title' => t('!important'),
+    '#description' => t('Check this in order to set the <a href="@important_url">!important declaration</a>.', array('@important_url' => url('http://www.w3.org/TR/CSS21/cascade.htmlr', array('fragment' => 'important-rules')))),
+    '#default_value' => (isset($settings['css_important']))? $settings['css_important'] : 0,
+  );
+
   return $form;
 }
 
@@ -237,18 +245,18 @@ function backgroundfield_field_formatter_view($entity_type, $entity, $field, $in
 
   // check if there's a file
   if (!$file) return;
+  $important = (isset($instance['settings']['css_important']) && $instance['settings']['css_important'])? ' !important' : '';
 
   $css = $instance['settings']['css_selector'] . ' {
-    background-image: url("' . file_create_url($file->uri) . '");
-    background-repeat: ' . $instance['settings']['css_repeat'] . ';
-    background-position: ' . $instance['settings']['css_h_position'] . ' ' . $instance['settings']['css_v_position'] . ';
-    background-attachment: ' . $instance['settings']['css_attachment'] . ';
+    background-image: url("' . file_create_url($file->uri) . '")' . $important . ';
+    background-repeat: ' . $instance['settings']['css_repeat'] . $important . ';
+    background-position: ' . $instance['settings']['css_h_position'] . ' ' . $instance['settings']['css_v_position'] . $important . ';
+    background-attachment: ' . $instance['settings']['css_attachment'] . $important . ';
     }';
   $options = array(
     'type' => 'inline',
     'group' => CSS_DEFAULT,
   );
   drupal_add_css($css, $options);
-
 
 }
