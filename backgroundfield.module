@@ -18,6 +18,7 @@ function backgroundfield_field_info() {
         'max_filesize' => '',
         'max_resolution' => '',
         'min_resolution' => '',
+        'image_style' => '',
         'css_selector' => '',
         'css_repeat' => '',
         'css_h_position' => '',
@@ -58,11 +59,21 @@ function backgroundfield_field_instance_settings_form($field, $instance) {
   $form['alt_field']['#access'] = FALSE;
   $form['title_field']['#access'] = FALSE;;
 
+  $image_styles = image_styles();
+  $options = array('no_style' => t('Original Image'));
+  foreach ($image_styles as $style => $details) $options[$style] = $details['name'];
+  $form['image_style'] = array(
+    '#type' => 'select',
+    '#title' => t('Image Style'),
+    '#default_value' => (isset($settings['image_style']) && !empty($settings['image_style']))? $settings['image_style'] : 'no_style',
+    '#description' => t('Select an image style to apply to this image'),
+    '#options' => $options,
+  );
   $form['css_selector'] = array(
     '#type' => 'textfield',
     '#title' => t('CSS Selector'),
     '#default_value' => (isset($settings['css_selector']) && !empty($settings['css_selector']))? $settings['css_selector'] : 'body',
-    '#description' => t('Enter a CSS selector to select the page element(s) to apply the background image. For example: .content'),
+    '#description' => t(''),
     '#required' => TRUE,
   );  
   $form['css_repeat'] = array(
@@ -255,8 +266,16 @@ function backgroundfield_field_formatter_view($entity_type, $entity, $field, $in
   if (!$file) return;
   $important = (isset($instance['settings']['css_important']) && $instance['settings']['css_important'])? ' !important' : '';
 
+  if (isset($instance['settings']['image_style']) && !empty($instance['settings']['image_style']) && $instance['settings']['image_style'] != 'no_style') {
+    $file = file_create_url(image_style_path($instance['settings']['image_style'], $file->uri));
+  }
+  else {
+    $file = file_create_url($file->uri);
+  }
+  
+
   $css = $instance['settings']['css_selector'] . ' {
-    background-image: url("' . file_create_url($file->uri) . '")' . $important . ';
+    background-image: url("' . $file . '")' . $important . ';
     background-repeat: ' . $instance['settings']['css_repeat'] . $important . ';
     background-position: ' . $instance['settings']['css_h_position'] . ' ' . $instance['settings']['css_v_position'] . $important . ';
     background-attachment: ' . $instance['settings']['css_attachment'] . $important . ';
