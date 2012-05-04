@@ -210,6 +210,12 @@ function backgroundfield_field_widget_info() {
  * Implements hook_field_widget_settings_form()
  */
 function backgroundfield_field_widget_settings_form($field, $instance) {
+  if (!isset($instance['widget']['settings']['preview_image_style'])) {
+    $instance['widget']['settings']['preview_image_style'] = '';
+  }
+  if (!isset($instance['widget']['settings']['progress_indicator'])) {
+    $instance['widget']['settings']['progress_indicator'] = '';
+  }
   return image_field_widget_settings_form($field, $instance);
 }
 
