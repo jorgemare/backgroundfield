@@ -77,6 +77,12 @@ function backgroundfield_field_instance_settings_form($field, $instance) {
     '#description' => t(''),
     '#required' => TRUE,
   );  
+  $form['tokens'] = array(
+    '#theme' => 'token_tree',
+    '#token_types' => array($instance['entity_type']), // The token types that have specific context. Can be multiple token types like 'term' and/or 'user'
+    '#global_types' => TRUE, // A boolean TRUE or FALSE whether to include 'global' context tokens like [current-user:*] or [site:*]. Defaults to TRUE.
+    '#click_insert' => TRUE, // A boolean whether to include the 'Click this token to insert in into the the focused textfield' JavaScript functionality. Defaults to TRUE.
+  );
   $form['css_repeat'] = array(
     '#type' => 'radios',
     '#title' => t('Repeat'),
@@ -282,6 +288,10 @@ function backgroundfield_field_formatter_view($entity_type, $entity, $field, $in
   
   // $instance['settings'] can be modified by calling hook_backgroundfield_alter(&$settings, $entity)
   drupal_alter('backgroundfield', $instance['settings'], $entity);
+
+  // add token support for the css selector.
+  $data = array($entity_type => $entity);
+  $instance['settings']['css_selector'] = token_replace($instance['settings']['css_selector'], $data);
 
   $css = $instance['settings']['css_selector'] . ' {
     background-image: url("' . $file . '")' . $important . ';
