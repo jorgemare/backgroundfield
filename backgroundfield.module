@@ -48,6 +48,7 @@ function backgroundfield_field_instance_settings_form($field, $instance) {
   // image field expects these
   $instance['settings']['alt_field'] = '';
   $instance['settings']['title_field'] = '';
+  $instance['settings']['default_image'] = '';
 
   // Use the image field instance settings form as a basis.
   $form = image_field_instance_settings_form($field, $instance);
