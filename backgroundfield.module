@@ -25,6 +25,7 @@ function backgroundfield_field_info() {
         'css_v_position' => '',
         'css_attachment' => '',
         'css_important' => '',
+        'css_size' => '',
       ),
       'default_widget' => 'backgroundfield_widget',
       'default_formatter' => 'backgroundfield_formatter',
@@ -126,6 +127,12 @@ function backgroundfield_field_instance_settings_form($field, $instance) {
       'fixed' => t('Fixed'),
     ),
     '#required' => TRUE,
+  );
+  $form['css_size'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Size'),
+    '#description' => t('Enter the CSS3 background-size. Refer to the <a href="@spec">W3 specification</a> for available options.', array('@spec' => url('http://www.w3.org/TR/2011/CR-css3-background-20110215/', array('fragment' => 'the-background-size')))),
+    '#default_value' => (isset($settings['css_size']) && !empty($settings['css_size']))? $settings['css_size'] : 'auto',
   );
   $form['css_important'] = array(
     '#type' => 'checkbox',
@@ -277,7 +284,10 @@ function backgroundfield_field_formatter_view($entity_type, $entity, $field, $in
 
   // check if there's a file
   if (!$file) return;
+
   $important = (isset($instance['settings']['css_important']) && $instance['settings']['css_important'])? ' !important' : '';
+
+  if (!isset($instance['settings']['css_size']) || empty($instance['settings']['css_size'])) $instance['settings']['css_size'] = 'auto';
 
   if (isset($instance['settings']['image_style']) && !empty($instance['settings']['image_style']) && $instance['settings']['image_style'] != 'no_style') {
     $file = file_create_url(image_style_path($instance['settings']['image_style'], $file->uri));
@@ -298,6 +308,7 @@ function backgroundfield_field_formatter_view($entity_type, $entity, $field, $in
     background-repeat: ' . $instance['settings']['css_repeat'] . $important . ';
     background-position: ' . $instance['settings']['css_h_position'] . ' ' . $instance['settings']['css_v_position'] . $important . ';
     background-attachment: ' . $instance['settings']['css_attachment'] . $important . ';
+    background-size: ' . $instance['settings']['css_size'] . $important . ';
     }';
   $options = array(
     'type' => 'inline',
